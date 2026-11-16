@@ -80,9 +80,9 @@ def md_to_html(body: str) -> str:
     def flush_para(buf: list[str]) -> None:
         if not buf:
             return
-        para = " ".join(s.strip() for s in buf if s.strip())
-        if para:
-            out.append(f"<p>{md_inline(para)}</p>")
+        parts = [md_inline(s.strip()) for s in buf if s.strip()]
+        if parts:
+            out.append("<p>" + "<br />\n".join(parts) + "</p>")
         buf.clear()
 
     while i < len(lines):
@@ -121,19 +121,21 @@ def md_to_html(body: str) -> str:
                     break
                 chunks.append(m.group(1).strip())
                 i += 1
-            # blank line inside quote ends a paragraph
-            paras: list[str] = []
+            # blank line inside quote ends a paragraph; soft breaks stay as <br>
+            paras: list[list[str]] = []
             cur: list[str] = []
             for c in chunks:
                 if not c:
                     if cur:
-                        paras.append(" ".join(cur))
+                        paras.append(cur)
                         cur = []
                     continue
                 cur.append(c)
             if cur:
-                paras.append(" ".join(cur))
-            inner = "".join(f"<p>{md_inline(p)}</p>" for p in paras if p)
+                paras.append(cur)
+            inner = "".join(
+                "<p>" + "<br />\n".join(md_inline(x) for x in p) + "</p>" for p in paras
+            )
             out.append(f"<blockquote>{inner}</blockquote>")
             continue
 
