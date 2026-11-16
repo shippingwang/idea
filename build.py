@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a minimal idea timeline from notes/*.md."""
+"""Build an idea desk: scraps, receipts, kraft, textbook pages."""
 
 from __future__ import annotations
 
@@ -19,6 +19,11 @@ SITE_TITLE = "idea"
 HOME_URL = "/"
 BASE = "/idea"
 
+# length bands → candidate paper styles
+SHORT_STYLES = ("slip", "receipt")
+MID_STYLES = ("kraft", "lined")
+LONG_STYLES = ("textbook", "lined")
+
 
 @dataclass
 class Note:
@@ -26,6 +31,8 @@ class Note:
     date: str
     body_html: str
     text: str
+    style: str
+    tilt: int
 
 
 def parse_front_matter(text: str) -> tuple[dict, str]:
@@ -79,17 +86,53 @@ def md_to_html(body: str) -> str:
     return "\n".join(blocks)
 
 
+def stable_hash(s: str) -> int:
+    h = 2166136261
+    for ch in s:
+        h ^= ord(ch)
+        h = (h * 16777619) & 0xFFFFFFFF
+    return h
+
+
+def pick_style(slug: str, text: str, forced: str | None) -> str:
+    allowed = {
+        "slip",
+        "receipt",
+        "kraft",
+        "lined",
+        "textbook",
+    }
+    if forced and forced in allowed:
+        return forced
+    n = len(text.strip())
+    h = stable_hash(slug)
+    if n < 36:
+        return SHORT_STYLES[h % len(SHORT_STYLES)]
+    if n < 110:
+        return MID_STYLES[h % len(MID_STYLES)]
+    return LONG_STYLES[h % len(LONG_STYLES)]
+
+
+def pick_tilt(slug: str) -> int:
+    # -3 … +3 degrees, skip 0 for a bit of life
+    vals = (-3, -2, -1, 1, 2, 3)
+    return vals[stable_hash(slug + ":tilt") % len(vals)]
+
+
 def load_notes() -> list[Note]:
     notes: list[Note] = []
     for path in sorted(NOTES.glob("*.md")):
         meta, body = parse_front_matter(path.read_text(encoding="utf-8"))
         plain = " ".join(line.strip() for line in body.splitlines() if line.strip())
+        style = pick_style(path.stem, plain, meta.get("style"))
         notes.append(
             Note(
                 slug=path.stem,
                 date=meta.get("date") or date.today().isoformat(),
                 body_html=md_to_html(body),
                 text=plain,
+                style=style,
+                tilt=pick_tilt(path.stem),
             )
         )
     notes.sort(key=lambda n: (n.date, n.slug), reverse=True)
@@ -106,7 +149,7 @@ def shell(title: str, body: str) -> str:
   <link rel="icon" href="/assets/favicon.png" type="image/png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;600&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Liu+Jian+Mao+Cao&family=Noto+Serif+SC:wght@400;600&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{BASE}/css/idea.css" />
 </head>
 <body>
@@ -137,29 +180,28 @@ def shell(title: str, body: str) -> str:
 """
 
 
+def render_card(n: Note) -> str:
+    return f"""<article class="scrap scrap--{html.escape(n.style)} reveal" style="--tilt:{n.tilt}deg" data-style="{html.escape(n.style)}">
+  <time class="scrap__date" datetime="{html.escape(n.date)}">{html.escape(n.date)}</time>
+  <div class="scrap__body">{n.body_html}</div>
+</article>"""
+
+
 def render_index(notes: list[Note]) -> str:
-    items: list[str] = []
-    for n in notes:
-        items.append(
-            f"""<li class="thread__item reveal">
-  <div class="thread__mark" aria-hidden="true"></div>
-  <time class="thread__date" datetime="{html.escape(n.date)}">{html.escape(n.date)}</time>
-  <div class="thread__body">{n.body_html}</div>
-</li>"""
-        )
-    if not items:
-        items.append('<li class="thread__empty">暂无念头。</li>')
+    cards = "".join(render_card(n) for n in notes)
+    if not cards:
+        cards = '<p class="desk__empty">桌上还空着。</p>'
 
     body = f"""
-  <main class="page wrap">
-    <header class="mast">
+  <main class="desk">
+    <header class="mast wrap">
       <p class="mast__kicker">idea</p>
       <h1 class="mast__title">心生</h1>
-      <p class="mast__lead">短念头，沿一条线落下。</p>
+      <p class="mast__lead">随手撕下的纸，长短不一。</p>
     </header>
-    <ol class="thread">
-      {"".join(items)}
-    </ol>
+    <div class="desk__board wrap">
+      {cards}
+    </div>
   </main>
 """
     return shell(SITE_TITLE, body)

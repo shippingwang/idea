@@ -1,18 +1,17 @@
-/* idea — thin lines, quiet air */
+/* idea — desk of scraps: slip / receipt / kraft / lined / textbook */
 
 :root {
-  --ink: #1f1f1d;
-  --ink-soft: #6a6862;
-  --paper: #f7f5f0;
-  --line: rgba(31, 31, 29, 0.14);
-  --line-strong: rgba(31, 31, 29, 0.28);
-  --accent: #2f5d4a;
+  --ink: #241f1a;
+  --ink-soft: #6e6458;
+  --desk: #cbb79a;
+  --desk-deep: #b79f7d;
+  --line: rgba(36, 31, 26, 0.14);
   --font-display: "ZCOOL XiaoWei", "Songti SC", "Noto Serif SC", serif;
   --font-body: "Noto Serif SC", "Songti SC", serif;
+  --font-hand: "Liu Jian Mao Cao", "ZCOOL XiaoWei", cursive;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
-  --pad: clamp(1.25rem, 4vw, 2.75rem);
-  --max: 40rem;
-  --rail: 1.15rem;
+  --pad: clamp(1.1rem, 3.5vw, 2.4rem);
+  --max: 54rem;
 }
 
 *,
@@ -30,26 +29,37 @@ body {
   min-height: 100vh;
   color: var(--ink);
   font-family: var(--font-body);
-  font-size: 1.05rem;
-  line-height: 1.75;
-  background: var(--paper);
+  font-size: 1.02rem;
+  line-height: 1.7;
+  background: var(--desk);
 }
 
+/* wood-ish desk without photos */
 body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(ellipse 70% 50% at 20% 10%, rgba(255, 248, 230, 0.28), transparent 55%),
+    radial-gradient(ellipse 60% 45% at 90% 85%, rgba(90, 60, 30, 0.12), transparent 50%),
+    repeating-linear-gradient(
+      92deg,
+      transparent 0 11px,
+      rgba(90, 62, 28, 0.035) 11px 12px
+    ),
+    linear-gradient(180deg, #d4c0a0 0%, #c4ab86 48%, #b99a72 100%);
+}
+
+body::after {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background:
-    linear-gradient(180deg, transparent 0%, rgba(47, 93, 74, 0.03) 100%),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 47px,
-      rgba(31, 31, 29, 0.015) 47px,
-      rgba(31, 31, 29, 0.015) 48px
-    );
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
 }
 
 a {
@@ -68,14 +78,14 @@ img {
   margin-inline: auto;
 }
 
-/* nav — align with site shell */
+/* nav */
 .nav {
   position: sticky;
   top: 0;
   z-index: 40;
-  backdrop-filter: blur(10px);
-  background: color-mix(in srgb, var(--paper) 86%, transparent);
-  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(8px);
+  background: color-mix(in srgb, #d8c4a4 78%, transparent);
+  border-bottom: 1px solid rgba(36, 31, 26, 0.12);
 }
 
 .nav__inner {
@@ -83,19 +93,18 @@ img {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  min-height: 3.25rem;
+  min-height: 3.2rem;
 }
 
 .nav__brand {
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
-  letter-spacing: 0.04em;
 }
 
 .nav__mark {
-  width: 1.55rem;
-  height: 1.55rem;
+  width: 1.5rem;
+  height: 1.5rem;
   border-radius: 0.2rem;
 }
 
@@ -107,164 +116,269 @@ img {
 .nav__links {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.55rem 1.1rem;
-  font-size: 0.92rem;
-  letter-spacing: 0.06em;
+  gap: 0.5rem 1rem;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
   color: var(--ink-soft);
-}
-
-.nav__links a {
-  position: relative;
-  padding-bottom: 0.12rem;
-}
-
-.nav__links a::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 280ms ease;
-}
-
-.nav__links a:hover::after,
-.nav__links a.is-active::after {
-  transform: scaleX(1);
 }
 
 .nav__links a.is-active {
   color: var(--ink);
+  border-bottom: 1px solid rgba(36, 31, 26, 0.45);
+}
+
+.nav__links a:hover {
+  color: var(--ink);
 }
 
 /* mast */
-.page {
-  padding: 3.25rem 0 4.5rem;
+.desk {
+  padding: 2.6rem 0 4rem;
 }
 
 .mast {
-  margin-bottom: 2.75rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--line);
+  margin-bottom: 1.8rem;
 }
 
 .mast__kicker {
-  margin: 0 0 0.55rem;
+  margin: 0 0 0.4rem;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.22em;
-  text-transform: lowercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
   color: var(--ink-soft);
 }
 
 .mast__title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(2.2rem, 6vw, 3rem);
+  font-size: clamp(2.1rem, 5.5vw, 2.85rem);
   font-weight: 400;
-  letter-spacing: 0.18em;
-  line-height: 1.15;
+  letter-spacing: 0.16em;
 }
 
 .mast__lead {
-  margin: 0.85rem 0 0;
-  max-width: 22rem;
+  margin: 0.55rem 0 0;
   color: var(--ink-soft);
-  font-size: 0.98rem;
+  font-size: 0.95rem;
 }
 
-/* thread — one vertical line */
-.thread {
-  list-style: none;
-  margin: 0;
-  padding: 0 0 0 var(--rail);
+/* board layout */
+.desk__board {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1.35rem 1.1rem;
+  align-items: start;
+}
+
+.desk__empty {
+  grid-column: 1 / -1;
+  color: var(--ink-soft);
+}
+
+/* base scrap */
+.scrap {
+  --tilt: 0deg;
   position: relative;
+  padding: 1.05rem 1.15rem 1.2rem;
+  transform: rotate(var(--tilt));
+  transition: transform 280ms ease, box-shadow 280ms ease;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.25) inset,
+    0 10px 22px rgba(50, 30, 10, 0.16);
 }
 
-.thread::before {
+.scrap:hover {
+  transform: rotate(0deg) translateY(-2px) scale(1.01);
+  z-index: 2;
+}
+
+.scrap__date {
+  display: block;
+  margin-bottom: 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  opacity: 0.72;
+}
+
+.scrap__body p {
+  margin: 0;
+}
+
+.scrap__body p + p {
+  margin-top: 0.65rem;
+}
+
+.scrap__body a {
+  border-bottom: 1px solid currentColor;
+  opacity: 0.9;
+}
+
+/* —— slip: 小纸条 —— */
+.scrap--slip {
+  grid-column: span 4;
+  max-width: 16rem;
+  justify-self: center;
+  padding: 0.95rem 1rem 1.1rem;
+  background:
+    linear-gradient(180deg, #fff8d6 0%, #f3e7a8 100%);
+  clip-path: polygon(
+    0% 2%,
+    3% 0%,
+    97% 1%,
+    100% 4%,
+    99% 96%,
+    96% 100%,
+    4% 99%,
+    0% 95%
+  );
+  font-family: var(--font-hand);
+  font-size: 1.35rem;
+  line-height: 1.55;
+  color: #2a2418;
+}
+
+.scrap--slip .scrap__date {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+}
+
+/* —— receipt: 小票 —— */
+.scrap--receipt {
+  grid-column: span 3;
+  max-width: 13.5rem;
+  justify-self: start;
+  padding: 0.85rem 0.85rem 1rem;
+  background:
+    repeating-linear-gradient(
+      180deg,
+      #f4f1e8 0 2px,
+      #efebe1 2px 3px
+    );
+  border-radius: 0.1rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.55;
+  letter-spacing: 0.01em;
+  color: #2c2a26;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.04),
+    0 8px 16px rgba(50, 30, 10, 0.14);
+}
+
+.scrap--receipt::before,
+.scrap--receipt::after {
   content: "";
   position: absolute;
-  top: 0.35rem;
-  bottom: 0.35rem;
   left: 0;
-  width: 1px;
-  background: linear-gradient(
-    180deg,
-    var(--line-strong) 0%,
-    var(--line) 55%,
-    transparent 100%
+  right: 0;
+  height: 8px;
+  background:
+    linear-gradient(135deg, transparent 50%, #efebe1 50%) left / 8px 8px repeat-x,
+    linear-gradient(45deg, #efebe1 50%, transparent 50%) left / 8px 8px repeat-x;
+}
+
+.scrap--receipt::before {
+  top: -7px;
+}
+
+.scrap--receipt::after {
+  bottom: -7px;
+  transform: scaleY(-1);
+}
+
+.scrap--receipt .scrap__date {
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.22);
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.55rem;
+}
+
+/* —— kraft: 牛皮纸 —— */
+.scrap--kraft {
+  grid-column: span 5;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(255, 230, 180, 0.22), transparent 45%),
+    linear-gradient(145deg, #c8a05a 0%, #a8733d 48%, #8f5f30 100%);
+  color: #2a1c10;
+  clip-path: polygon(
+    1% 0%,
+    98% 1%,
+    100% 8%,
+    99% 92%,
+    96% 100%,
+    2% 98%,
+    0% 90%
   );
+  font-size: 1.02rem;
+  line-height: 1.75;
 }
 
-.thread__item {
-  position: relative;
-  padding: 0 0 2.1rem 1.35rem;
+.scrap--kraft .scrap__date {
+  color: rgba(42, 28, 16, 0.7);
 }
 
-.thread__item:last-child {
-  padding-bottom: 0;
+/* —— lined: 横线草稿纸 —— */
+.scrap--lined {
+  grid-column: span 6;
+  background-color: #f7f3e8;
+  background-image:
+    linear-gradient(#d7e4f0 1px, transparent 1px),
+    linear-gradient(90deg, transparent 2.1rem, rgba(220, 90, 90, 0.35) 2.1rem, rgba(220, 90, 90, 0.35) calc(2.1rem + 1px), transparent calc(2.1rem + 1px));
+  background-size: 100% 1.7rem, 100% 100%;
+  background-position: 0 2.35rem, 0 0;
+  padding: 1.15rem 1.2rem 1.3rem 2.55rem;
+  color: #243048;
+  font-size: 1.02rem;
+  line-height: 1.7rem;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.55) inset,
+    0 12px 24px rgba(40, 30, 15, 0.15);
 }
 
-.thread__mark {
-  position: absolute;
-  top: 0.55rem;
-  left: calc(-1 * var(--rail) - 0.5px);
-  width: 7px;
-  height: 7px;
-  border: 1px solid var(--accent);
-  border-radius: 50%;
-  background: var(--paper);
-  transform: translateX(-50%);
-  box-shadow: 0 0 0 3px var(--paper);
+.scrap--lined .scrap__date {
+  margin-bottom: 0.85rem;
+  color: #6a7588;
 }
 
-.thread__date {
-  display: block;
-  margin-bottom: 0.45rem;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
-  color: var(--ink-soft);
-}
-
-.thread__body {
-  max-width: 34rem;
-}
-
-.thread__body p {
-  margin: 0;
+/* —— textbook: 课本页 —— */
+.scrap--textbook {
+  grid-column: span 7;
+  justify-self: center;
+  width: min(100%, 28rem);
+  padding: 1.6rem 1.7rem 1.8rem 2rem;
+  background:
+    linear-gradient(90deg, rgba(80, 50, 20, 0.06), transparent 1.1rem),
+    linear-gradient(180deg, #fbf7ee 0%, #f3ebe0 100%);
+  border: 1px solid rgba(70, 50, 30, 0.12);
+  border-radius: 0.08rem 0.35rem 0.35rem 0.08rem;
+  box-shadow:
+    -6px 0 0 rgba(90, 55, 25, 0.08),
+    0 14px 28px rgba(40, 25, 10, 0.16);
   font-size: 1.05rem;
-  line-height: 1.85;
+  line-height: 1.9;
+  color: #2a241c;
 }
 
-.thread__body p + p {
-  margin-top: 0.7rem;
+.scrap--textbook .scrap__date {
+  font-variant-numeric: tabular-nums;
+  color: #7a6f60;
+  margin-bottom: 0.75rem;
 }
 
-.thread__body a {
-  border-bottom: 1px solid var(--line-strong);
-}
-
-.thread__body a:hover {
-  border-bottom-color: var(--accent);
-  color: var(--accent);
-}
-
-.thread__empty {
-  color: var(--ink-soft);
-  padding-left: 1.35rem;
+.scrap--textbook .scrap__body p:first-child::first-letter {
+  font-family: var(--font-display);
+  font-size: 1.55em;
+  line-height: 1;
+  padding-right: 0.08em;
 }
 
 /* footer */
 .foot {
-  padding: 1.5rem 0 2.25rem;
-  border-top: 1px solid var(--line);
+  padding: 1.35rem 0 2.1rem;
+  border-top: 1px solid rgba(36, 31, 26, 0.12);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
   color: var(--ink-soft);
 }
 
@@ -279,16 +393,31 @@ img {
   color: var(--ink);
 }
 
-/* motion */
+/* motion: keep tilt via CSS var after reveal */
 .reveal {
   opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 640ms ease, transform 640ms ease;
+  translate: 0 12px;
+  transition:
+    opacity 620ms ease,
+    translate 620ms ease;
 }
 
 .reveal.is-in {
   opacity: 1;
-  transform: none;
+  translate: 0 0;
+}
+
+@media (max-width: 52rem) {
+  .scrap--slip,
+  .scrap--receipt,
+  .scrap--kraft,
+  .scrap--lined,
+  .scrap--textbook {
+    grid-column: span 6;
+    max-width: none;
+    width: auto;
+    justify-self: stretch;
+  }
 }
 
 @media (max-width: 40rem) {
@@ -296,20 +425,26 @@ img {
     display: none;
   }
 
-  .nav__links {
-    gap: 0.5rem 0.85rem;
-    font-size: 0.88rem;
+  .desk__board {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 
-  .page {
-    padding-top: 2.4rem;
+  .scrap--slip,
+  .scrap--receipt,
+  .scrap--kraft,
+  .scrap--lined,
+  .scrap--textbook {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: min(100%, 22rem);
   }
 
-  .thread {
-    padding-left: 0.9rem;
+  .scrap--receipt {
+    width: min(100%, 14rem);
   }
 
-  .thread__item {
-    padding-left: 1.1rem;
+  .scrap--slip {
+    width: min(100%, 16rem);
   }
 }

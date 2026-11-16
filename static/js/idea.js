@@ -15,11 +15,11 @@
         io.unobserve(entry.target);
       }
     },
-    { rootMargin: "0px 0px -8% 0px", threshold: 0.08 }
+    { rootMargin: "0px 0px -6% 0px", threshold: 0.06 }
   );
 
   nodes.forEach((el, i) => {
-    el.style.transitionDelay = `${Math.min(i * 70, 280)}ms`;
+    el.style.transitionDelay = `${Math.min(i * 80, 360)}ms`;
     io.observe(el);
   });
 })();
