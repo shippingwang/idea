@@ -279,7 +279,7 @@ def shell(title: str, body: str) -> str:
 
 
 def render_card(n: Note) -> str:
-    return f"""<article class="scrap scrap--{html.escape(n.style)} reveal" style="--tilt:{n.tilt}deg" data-style="{html.escape(n.style)}">
+    return f"""<article class="scrap scrap--{html.escape(n.style)}" style="--tilt:{n.tilt}deg" data-style="{html.escape(n.style)}" data-slug="{html.escape(n.slug)}">
   <time class="scrap__date" datetime="{html.escape(n.date)}">{html.escape(n.date)}</time>
   <div class="scrap__body">{n.body_html}</div>
 </article>"""
@@ -292,13 +292,12 @@ def render_index(notes: list[Note]) -> str:
 
     body = f"""
   <main class="desk">
-    <header class="mast wrap">
-      <p class="mast__kicker">idea</p>
-      <h1 class="mast__title">心生</h1>
-      <p class="mast__lead">随手撕下的纸，长短不一。</p>
-    </header>
-    <div class="desk__board wrap">
-      {cards}
+    <div class="desk__stage">
+      <button class="desk__bird" type="button" aria-label="点鸟，整理回紧凑排版" title="点鸟整理"></button>
+      <div class="desk__board">
+        {cards}
+      </div>
+      <p class="desk__hint">拖动纸条 · 点海鸟整理</p>
     </div>
   </main>
 """
