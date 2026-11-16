@@ -1,10 +1,15 @@
 (() => {
   const board = document.querySelector(".desk__board");
   const bird = document.querySelector(".desk__bird");
+  const photo = document.querySelector(".desk__photo");
   if (!board) return;
 
   const scraps = Array.from(board.querySelectorAll(".scrap"));
   if (!scraps.length) return;
+
+  // seagull in jeju-beach / idea-bg (normalized image coords)
+  const BIRD_NX = 0.485;
+  const BIRD_NY = 0.495;
 
   let zTop = 10;
   let drag = null;
@@ -30,6 +35,33 @@
     }
   }
 
+  /** Map image point → viewport under object-fit: cover + center */
+  function coverPoint(nx, ny) {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const iw = (photo && photo.naturalWidth) || 3600;
+    const ih = (photo && photo.naturalHeight) || 2400;
+    const scale = Math.max(vw / iw, vh / ih);
+    const dw = iw * scale;
+    const dh = ih * scale;
+    const left = (vw - dw) / 2;
+    const top = (vh - dh) / 2;
+    return {
+      x: left + nx * dw,
+      y: top + ny * dh,
+    };
+  }
+
+  function placeBird() {
+    if (!bird) return;
+    const { x, y } = coverPoint(BIRD_NX, BIRD_NY);
+    const size = Math.max(56, Math.min(88, window.innerWidth * 0.055));
+    bird.style.width = `${size}px`;
+    bird.style.height = `${size}px`;
+    bird.style.left = `${x}px`;
+    bird.style.top = `${y}px`;
+  }
+
   function compactLayout() {
     const pad = 12;
     const gap = 14;
@@ -37,10 +69,8 @@
     const maxCol = Math.min(boardW - pad * 2, 560);
     let x = pad;
     let y = pad;
-    let colW = 0;
     let rowH = 0;
 
-    // short scraps first for a tidy stack, textbook last
     const order = [...scraps].sort((a, b) => {
       const wa = styleWidth[a.dataset.style] || 280;
       const wb = styleWidth[b.dataset.style] || 280;
@@ -54,24 +84,20 @@
       el.style.width = `${w}px`;
       el.style.zIndex = String(10 + i);
 
-      // gentle tidy tilts
       const tilts = [-1.5, 1, -0.8, 1.2, -1];
       el.style.setProperty("--tilt", `${tilts[i % tilts.length]}deg`);
 
-      if (x + w > pad + maxCol && colW > 0) {
+      if (x + w > pad + maxCol && x > pad) {
         x = pad;
         y += rowH + gap;
-        colW = 0;
         rowH = 0;
       }
 
       setPos(el, x, y, { animate: true });
-      colW = Math.max(colW, w);
       rowH = Math.max(rowH, el.offsetHeight);
       x += w + gap;
     });
 
-    // keep board tall enough for content + bird breathing room
     const bottom = order.reduce((m, el) => {
       const yv = parseFloat(el.style.getPropertyValue("--y")) || 0;
       return Math.max(m, yv + el.offsetHeight);
@@ -84,7 +110,6 @@
     if (e.target.closest("a")) return;
     const el = e.currentTarget;
     const rect = el.getBoundingClientRect();
-    const boardRect = board.getBoundingClientRect();
     const x = parseFloat(el.style.getPropertyValue("--x")) || 0;
     const y = parseFloat(el.style.getPropertyValue("--y")) || 0;
 
@@ -100,8 +125,6 @@
       oy: e.clientY - rect.top,
       startX: x,
       startY: y,
-      boardLeft: boardRect.left,
-      boardTop: boardRect.top,
     };
   }
 
@@ -138,20 +161,29 @@
   if (bird) {
     bird.addEventListener("click", (e) => {
       e.preventDefault();
+      e.stopPropagation();
       compactLayout();
     });
   }
 
-  // initial compact pack
-  requestAnimationFrame(() => {
+  function layoutAll() {
+    placeBird();
     compactLayout();
-    // second pass after fonts/images settle heights
-    window.setTimeout(compactLayout, 120);
-  });
+  }
+
+  const ready = () => {
+    layoutAll();
+    window.setTimeout(layoutAll, 140);
+  };
+
+  if (photo && !photo.complete) {
+    photo.addEventListener("load", ready, { once: true });
+  }
+  requestAnimationFrame(ready);
 
   let resizeTimer = 0;
   window.addEventListener("resize", () => {
     window.clearTimeout(resizeTimer);
-    resizeTimer = window.setTimeout(compactLayout, 160);
+    resizeTimer = window.setTimeout(layoutAll, 120);
   });
 })();

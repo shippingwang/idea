@@ -291,13 +291,14 @@ def render_index(notes: list[Note]) -> str:
         cards = '<p class="desk__empty">桌上还空着。</p>'
 
     body = f"""
+  <img class="desk__photo" src="/assets/idea-bg.jpeg" alt="" width="3600" height="2400" decoding="async" fetchpriority="high" />
+  <button class="desk__bird" type="button" aria-label="点海鸟，整理回紧凑排版" title="摸它 · 整理桌面"></button>
   <main class="desk">
     <div class="desk__stage">
-      <button class="desk__bird" type="button" aria-label="点鸟，整理回紧凑排版" title="点鸟整理"></button>
       <div class="desk__board">
         {cards}
       </div>
-      <p class="desk__hint">拖动纸条 · 点海鸟整理</p>
+      <p class="desk__hint">拖动纸条 · 摸海鸟整理</p>
     </div>
   </main>
 """
