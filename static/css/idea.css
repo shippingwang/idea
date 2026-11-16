@@ -8,7 +8,8 @@
   --line: rgba(36, 31, 26, 0.14);
   --font-display: "ZCOOL XiaoWei", "Songti SC", "Noto Serif SC", serif;
   --font-body: "Noto Serif SC", "Songti SC", serif;
-  --font-hand: "Liu Jian Mao Cao", "ZCOOL XiaoWei", cursive;
+  --font-slip: "Noto Sans SC", "PingFang SC", "Helvetica Neue", sans-serif;
+  --font-book: "Source Serif 4", "Noto Serif SC", "Songti SC", serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
   --pad: clamp(1.1rem, 3.5vw, 2.4rem);
   --max: 54rem;
@@ -214,10 +215,58 @@ img {
   opacity: 0.9;
 }
 
+.scrap__body h2,
+.scrap__body h3 {
+  margin: 0 0 0.55rem;
+  font-size: 1.08em;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.scrap__body blockquote {
+  margin: 0.7rem 0;
+  padding: 0.35rem 0 0.35rem 0.85rem;
+  border-left: 2px solid rgba(36, 31, 26, 0.28);
+  color: rgba(36, 31, 26, 0.82);
+}
+
+.scrap__body blockquote p + p {
+  margin-top: 0.45rem;
+}
+
+.scrap__body ol,
+.scrap__body ul {
+  margin: 0.65rem 0;
+  padding-left: 1.25rem;
+}
+
+.scrap__body li {
+  margin: 0.35rem 0;
+  padding-left: 0.15rem;
+}
+
+.scrap__body li + li {
+  margin-top: 0.45rem;
+}
+
+.scrap__body hr {
+  border: 0;
+  border-top: 1px dashed rgba(36, 31, 26, 0.28);
+  margin: 0.85rem 0;
+}
+
+.scrap__body code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  padding: 0.05em 0.28em;
+  background: rgba(36, 31, 26, 0.06);
+  border-radius: 0.15rem;
+}
+
 /* —— slip: 小纸条 —— */
 .scrap--slip {
   grid-column: span 4;
-  max-width: 16rem;
+  max-width: 15.5rem;
   justify-self: center;
   padding: 0.95rem 1rem 1.1rem;
   background:
@@ -232,15 +281,18 @@ img {
     4% 99%,
     0% 95%
   );
-  font-family: var(--font-hand);
-  font-size: 1.35rem;
-  line-height: 1.55;
+  font-family: var(--font-slip);
+  font-size: 0.98rem;
+  font-weight: 500;
+  line-height: 1.65;
+  letter-spacing: 0.01em;
   color: #2a2418;
 }
 
 .scrap--slip .scrap__date {
   font-family: var(--font-mono);
   font-size: 0.62rem;
+  font-weight: 400;
 }
 
 /* —— receipt: 小票 —— */
@@ -342,10 +394,10 @@ img {
 
 /* —— textbook: 课本页 —— */
 .scrap--textbook {
-  grid-column: span 7;
+  grid-column: span 10;
   justify-self: center;
-  width: min(100%, 28rem);
-  padding: 1.6rem 1.7rem 1.8rem 2rem;
+  width: min(100%, 36rem);
+  padding: 1.55rem 1.75rem 1.7rem 1.9rem;
   background:
     linear-gradient(90deg, rgba(80, 50, 20, 0.06), transparent 1.1rem),
     linear-gradient(180deg, #fbf7ee 0%, #f3ebe0 100%);
@@ -354,22 +406,39 @@ img {
   box-shadow:
     -6px 0 0 rgba(90, 55, 25, 0.08),
     0 14px 28px rgba(40, 25, 10, 0.16);
-  font-size: 1.05rem;
-  line-height: 1.9;
+  font-family: var(--font-book);
+  font-size: 0.98rem;
+  line-height: 1.78;
   color: #2a241c;
 }
 
 .scrap--textbook .scrap__date {
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
   color: #7a6f60;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.85rem;
 }
 
-.scrap--textbook .scrap__body p:first-child::first-letter {
-  font-family: var(--font-display);
-  font-size: 1.55em;
-  line-height: 1;
-  padding-right: 0.08em;
+.scrap--textbook .scrap__body > p:first-child {
+  font-size: 1.12rem;
+  font-weight: 600;
+  line-height: 1.45;
+  margin-bottom: 0.85rem;
+}
+
+.scrap--textbook .scrap__body ol {
+  padding-left: 1.35rem;
+}
+
+.scrap--textbook .scrap__body li {
+  margin: 0.55rem 0;
+}
+
+.scrap--textbook .scrap__body blockquote {
+  background: rgba(90, 55, 25, 0.04);
+  border-left-color: rgba(90, 55, 25, 0.35);
+  padding: 0.55rem 0.75rem 0.55rem 0.9rem;
+  border-radius: 0 0.2rem 0.2rem 0;
 }
 
 /* footer */

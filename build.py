@@ -54,36 +54,132 @@ def parse_front_matter(text: str) -> tuple[dict, str]:
 
 def md_inline(text: str) -> str:
     text = html.escape(text)
-    text = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", text)
-    text = re.sub(r"\*(.+?)\*", r"<em>\1</em>", text)
+    text = re.sub(r"`([^`]+)`", r"<code>\1</code>", text)
+    text = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", text)
+    text = re.sub(r"(?<!\*)\*([^*]+)\*(?!\*)", r"<em>\1</em>", text)
     text = re.sub(
-        r"\[([^\]]+)\]\((https?://[^)]+)\)",
+        r"\[([^\]]+)\]\((https?://[^)\s]+)\)",
         r'<a href="\2" rel="noopener noreferrer">\1</a>',
         text,
     )
     return text
 
 
-def md_to_html(body: str) -> str:
-    blocks: list[str] = []
-    buf: list[str] = []
+_OL = re.compile(r"^(\d+)\.\s+(.*)$")
+_UL = re.compile(r"^[-*]\s+(.*)$")
+_BQ = re.compile(r"^>\s?(.*)$")
+_HR = re.compile(r"^(-{3,}|\*{3,}|_{3,})$")
 
-    def flush() -> None:
-        nonlocal buf
+
+def md_to_html(body: str) -> str:
+    """Lightweight markdown: paragraphs, lists, quotes, hr, headings."""
+    lines = body.splitlines()
+    out: list[str] = []
+    i = 0
+
+    def flush_para(buf: list[str]) -> None:
         if not buf:
             return
-        para = " ".join(line.strip() for line in buf if line.strip())
+        para = " ".join(s.strip() for s in buf if s.strip())
         if para:
-            blocks.append(f"<p>{md_inline(para)}</p>")
-        buf = []
+            out.append(f"<p>{md_inline(para)}</p>")
+        buf.clear()
 
-    for line in body.splitlines():
-        if not line.strip():
-            flush()
+    while i < len(lines):
+        raw = lines[i]
+        line = raw.rstrip()
+        stripped = line.strip()
+
+        if not stripped:
+            i += 1
             continue
-        buf.append(line)
-    flush()
-    return "\n".join(blocks)
+
+        if _HR.fullmatch(stripped):
+            out.append("<hr />")
+            i += 1
+            continue
+
+        if stripped.startswith("### "):
+            out.append(f"<h3>{md_inline(stripped[4:].strip())}</h3>")
+            i += 1
+            continue
+        if stripped.startswith("## "):
+            out.append(f"<h2>{md_inline(stripped[3:].strip())}</h2>")
+            i += 1
+            continue
+        if stripped.startswith("# "):
+            out.append(f"<h2>{md_inline(stripped[2:].strip())}</h2>")
+            i += 1
+            continue
+
+        bq = _BQ.match(line)
+        if bq:
+            chunks: list[str] = []
+            while i < len(lines):
+                m = _BQ.match(lines[i].rstrip())
+                if not m:
+                    break
+                chunks.append(m.group(1).strip())
+                i += 1
+            # blank line inside quote ends a paragraph
+            paras: list[str] = []
+            cur: list[str] = []
+            for c in chunks:
+                if not c:
+                    if cur:
+                        paras.append(" ".join(cur))
+                        cur = []
+                    continue
+                cur.append(c)
+            if cur:
+                paras.append(" ".join(cur))
+            inner = "".join(f"<p>{md_inline(p)}</p>" for p in paras if p)
+            out.append(f"<blockquote>{inner}</blockquote>")
+            continue
+
+        ol = _OL.match(stripped)
+        if ol:
+            items: list[str] = []
+            while i < len(lines):
+                m = _OL.match(lines[i].strip())
+                if not m:
+                    break
+                items.append(f"<li>{md_inline(m.group(2).strip())}</li>")
+                i += 1
+            out.append("<ol>" + "".join(items) + "</ol>")
+            continue
+
+        ul = _UL.match(stripped)
+        if ul:
+            items = []
+            while i < len(lines):
+                m = _UL.match(lines[i].strip())
+                if not m:
+                    break
+                items.append(f"<li>{md_inline(m.group(1).strip())}</li>")
+                i += 1
+            out.append("<ul>" + "".join(items) + "</ul>")
+            continue
+
+        para_buf: list[str] = []
+        while i < len(lines):
+            s = lines[i].rstrip()
+            st = s.strip()
+            if not st:
+                break
+            if (
+                _HR.fullmatch(st)
+                or st.startswith("#")
+                or _BQ.match(s)
+                or _OL.match(st)
+                or _UL.match(st)
+            ):
+                break
+            para_buf.append(st)
+            i += 1
+        flush_para(para_buf)
+
+    return "\n".join(out)
 
 
 def stable_hash(s: str) -> int:
@@ -149,7 +245,7 @@ def shell(title: str, body: str) -> str:
   <link rel="icon" href="/assets/favicon.png" type="image/png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Liu+Jian+Mao+Cao&family=Noto+Serif+SC:wght@400;600&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500&family=Noto+Serif+SC:wght@400;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{BASE}/css/idea.css" />
 </head>
 <body>
