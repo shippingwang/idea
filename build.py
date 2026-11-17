@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build an idea desk: scraps, receipts, kraft, textbook pages."""
+"""Build idea feed: lined / receipt / textbook / card in dual columns."""
 
 from __future__ import annotations
 
@@ -19,10 +19,10 @@ SITE_TITLE = "idea"
 HOME_URL = "/"
 BASE = "/idea"
 
-# length bands → candidate paper styles
-SHORT_STYLES = ("slip", "receipt")
-MID_STYLES = ("kraft", "lined")
-LONG_STYLES = ("textbook", "lined")
+STYLES = ("lined", "receipt", "textbook", "card")
+SHORT = ("receipt", "lined")
+MID = ("lined", "receipt")
+LONG = ("textbook", "lined")
 
 
 @dataclass
@@ -32,7 +32,6 @@ class Note:
     body_html: str
     text: str
     style: str
-    tilt: int
 
 
 def parse_front_matter(text: str) -> tuple[dict, str]:
@@ -72,7 +71,6 @@ _HR = re.compile(r"^(-{3,}|\*{3,}|_{3,})$")
 
 
 def md_to_html(body: str) -> str:
-    """Lightweight markdown: paragraphs, lists, quotes, hr, headings."""
     lines = body.splitlines()
     out: list[str] = []
     i = 0
@@ -121,7 +119,6 @@ def md_to_html(body: str) -> str:
                     break
                 chunks.append(m.group(1).strip())
                 i += 1
-            # blank line inside quote ends a paragraph; soft breaks stay as <br>
             paras: list[list[str]] = []
             cur: list[str] = []
             for c in chunks:
@@ -193,28 +190,15 @@ def stable_hash(s: str) -> int:
 
 
 def pick_style(slug: str, text: str, forced: str | None) -> str:
-    allowed = {
-        "slip",
-        "receipt",
-        "kraft",
-        "lined",
-        "textbook",
-    }
-    if forced and forced in allowed:
+    if forced and forced in STYLES:
         return forced
     n = len(text.strip())
     h = stable_hash(slug)
-    if n < 36:
-        return SHORT_STYLES[h % len(SHORT_STYLES)]
-    if n < 110:
-        return MID_STYLES[h % len(MID_STYLES)]
-    return LONG_STYLES[h % len(LONG_STYLES)]
-
-
-def pick_tilt(slug: str) -> int:
-    # -3 … +3 degrees, skip 0 for a bit of life
-    vals = (-3, -2, -1, 1, 2, 3)
-    return vals[stable_hash(slug + ":tilt") % len(vals)]
+    if n < 40:
+        return SHORT[h % len(SHORT)]
+    if n < 160:
+        return MID[h % len(MID)]
+    return LONG[h % len(LONG)]
 
 
 def load_notes() -> list[Note]:
@@ -222,15 +206,13 @@ def load_notes() -> list[Note]:
     for path in sorted(NOTES.glob("*.md")):
         meta, body = parse_front_matter(path.read_text(encoding="utf-8"))
         plain = " ".join(line.strip() for line in body.splitlines() if line.strip())
-        style = pick_style(path.stem, plain, meta.get("style"))
         notes.append(
             Note(
                 slug=path.stem,
                 date=meta.get("date") or date.today().isoformat(),
                 body_html=md_to_html(body),
                 text=plain,
-                style=style,
-                tilt=pick_tilt(path.stem),
+                style=pick_style(path.stem, plain, meta.get("style")),
             )
         )
     notes.sort(key=lambda n: (n.date, n.slug), reverse=True)
@@ -272,14 +254,13 @@ def shell(title: str, body: str) -> str:
       <a href="{HOME_URL}">home</a>
     </div>
   </footer>
-  <script src="{BASE}/js/idea.js"></script>
 </body>
 </html>
 """
 
 
 def render_card(n: Note) -> str:
-    return f"""<article class="scrap scrap--{html.escape(n.style)}" style="--tilt:{n.tilt}deg" data-style="{html.escape(n.style)}" data-slug="{html.escape(n.slug)}">
+    return f"""<article class="scrap scrap--{html.escape(n.style)}" data-style="{html.escape(n.style)}" data-slug="{html.escape(n.slug)}">
   <time class="scrap__date" datetime="{html.escape(n.date)}">{html.escape(n.date)}</time>
   <div class="scrap__body">{n.body_html}</div>
 </article>"""
@@ -288,17 +269,13 @@ def render_card(n: Note) -> str:
 def render_index(notes: list[Note]) -> str:
     cards = "".join(render_card(n) for n in notes)
     if not cards:
-        cards = '<p class="desk__empty">桌上还空着。</p>'
+        cards = '<p class="feed__empty">还没有念头。</p>'
 
     body = f"""
   <img class="desk__photo" src="/assets/idea-bg.jpeg" alt="" width="3600" height="2400" decoding="async" fetchpriority="high" />
-  <button class="desk__bird" type="button" aria-label="点海鸟，整理回紧凑排版" title="摸它 · 整理桌面"></button>
   <main class="desk">
-    <div class="desk__stage">
-      <div class="desk__board">
-        {cards}
-      </div>
-      <p class="desk__hint">拖动纸条 · 摸海鸟整理</p>
+    <div class="feed wrap">
+      {cards}
     </div>
   </main>
 """

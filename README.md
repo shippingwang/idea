@@ -2,18 +2,18 @@
 
 短念头。源文件在 `notes/`，构建进 [shippingwang.com/idea](https://shippingwang.com/idea/)。
 
-纸样按篇幅轮换（也可在 front matter 写死 `style`）：
+样式（front matter `style`，也可按篇幅自动选）：
 
-| 长度 | 样式 |
-|------|------|
-| 短 | `slip` 小纸条 / `receipt` 小票 |
-| 中 | `kraft` 牛皮纸 / `lined` 横线草稿 |
-| 长 | `textbook` 课本页 / `lined` |
+| style | 样子 |
+|-------|------|
+| `lined` | 横线本，圆珠笔蓝字 |
+| `receipt` | 小票 |
+| `textbook` | 课本页 |
+| `card` | 名片 |
+
+文件名建议：`{style}-{slug}.md`，例如 `lined-pixelumm.md`、`card-shipping.md`。
 
 ```bash
 python3 build.py
-```
-
-```bash
 MSG="..." bash ../site/scripts/publish.sh idea
 ```
