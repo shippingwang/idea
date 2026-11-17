@@ -51,16 +51,63 @@ def parse_front_matter(text: str) -> tuple[dict, str]:
     return meta, body
 
 
+_IG_ICON = (
+    '<svg class="link-ig__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
+    '<path fill="currentColor" d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9A5.5 5.5 0 0 1 16.5 22h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 1.75A3.75 3.75 0 0 0 3.75 7.5v9A3.75 3.75 0 0 0 7.5 20.25h9A3.75 3.75 0 0 0 20.25 16.5v-9A3.75 3.75 0 0 0 16.5 3.75h-9Zm9.75 1.5a1.125 1.125 0 1 1 0 2.25 1.125 1.125 0 0 1 0-2.25ZM12 7.25A4.75 4.75 0 1 1 12 16.75 4.75 4.75 0 0 1 12 7.25Zm0 1.75a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/>'
+    "</svg>"
+)
+
+
+def ig_chip(handle: str, label: str | None = None) -> str:
+    handle = handle.strip().lstrip("@")
+    text = html.escape(label or f"@{handle}")
+    href = html.escape(f"https://www.instagram.com/{handle}/", quote=True)
+    return (
+        f'<a class="link-ig" href="{href}" target="_blank" '
+        f'rel="noopener noreferrer">{_IG_ICON}<span>{text}</span></a>'
+    )
+
+
 def md_inline(text: str) -> str:
+    parks: list[str] = []
+
+    def park(html_snip: str) -> str:
+        parks.append(html_snip)
+        return f"\x00IG{len(parks) - 1}\x00"
+
+    def park_ig(handle: str, label: str | None = None) -> str:
+        return park(ig_chip(handle, label))
+
+    text = re.sub(
+        r"(?i)\binstagram\s*[·•:：]\s*@?([A-Za-z0-9._]+)",
+        lambda m: park_ig(m.group(1)),
+        text,
+    )
+    text = re.sub(
+        r"(?i)\binstagram\s*は\s*@?([A-Za-z0-9._]+)\s*です。?",
+        lambda m: park_ig(m.group(1)),
+        text,
+    )
+    text = re.sub(
+        r"\[([^\]]+)\]\((https?://(?:www\.)?instagram\.com/([A-Za-z0-9._]+)/?)\)",
+        lambda m: park_ig(m.group(3), m.group(1)),
+        text,
+    )
+
     text = html.escape(text)
     text = re.sub(r"`([^`]+)`", r"<code>\1</code>", text)
     text = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", text)
     text = re.sub(r"(?<!\*)\*([^*]+)\*(?!\*)", r"<em>\1</em>", text)
     text = re.sub(
         r"\[([^\]]+)\]\((https?://[^)\s]+)\)",
-        r'<a href="\2" rel="noopener noreferrer">\1</a>',
+        lambda m: (
+            f'<a href="{html.escape(m.group(2), quote=True)}" '
+            f'rel="noopener noreferrer">{m.group(1)}</a>'
+        ),
         text,
     )
+    for i, snip in enumerate(parks):
+        text = text.replace(f"\x00IG{i}\x00", snip)
     return text
 
 

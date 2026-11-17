@@ -277,20 +277,24 @@ img {
   margin-bottom: 0.45rem;
 }
 
-/* —— textbook —— */
+/* —— textbook: cool paper against ocean blue —— */
 .scrap--textbook {
   background:
-    linear-gradient(90deg, rgba(80, 50, 20, 0.06), transparent 0.9rem),
-    linear-gradient(180deg, #fbf7ee 0%, #f3ebe0 100%);
-  border: 1px solid rgba(70, 50, 30, 0.12);
+    linear-gradient(90deg, rgba(30, 90, 140, 0.08), transparent 0.95rem),
+    linear-gradient(180deg, #f3f7fb 0%, #e4eef6 100%);
+  border: 1px solid rgba(40, 90, 130, 0.14);
   border-radius: 0.08rem 0.28rem 0.28rem 0.08rem;
   box-shadow:
-    -4px 0 0 rgba(90, 55, 25, 0.08),
-    0 10px 20px rgba(8, 20, 36, 0.2);
+    -4px 0 0 rgba(35, 95, 145, 0.12),
+    0 10px 20px rgba(8, 20, 36, 0.22);
   font-family: var(--font-book);
   font-size: 0.88rem;
   line-height: 1.65;
-  color: #2a241c;
+  color: #1c2b3a;
+}
+
+.scrap--textbook .scrap__date {
+  color: #5a7388;
 }
 
 .scrap--textbook .scrap__body > p:first-child,
@@ -299,11 +303,13 @@ img {
   font-weight: 600;
   line-height: 1.35;
   margin-bottom: 0.55rem;
+  color: #152433;
 }
 
 .scrap--textbook .scrap__body blockquote {
-  background: rgba(90, 55, 25, 0.04);
-  border-left-color: rgba(90, 55, 25, 0.35);
+  background: rgba(30, 90, 140, 0.06);
+  border-left-color: rgba(30, 100, 160, 0.4);
+  color: #2a4054;
   padding: 0.4rem 0.55rem 0.4rem 0.7rem;
   border-radius: 0 0.15rem 0.15rem 0;
 }
@@ -347,6 +353,46 @@ img {
 
 .scrap--card .scrap__body p {
   color: #3a352c;
+}
+
+/* Instagram chip */
+.link-ig {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.15rem 0;
+  padding: 0.28rem 0.65rem 0.28rem 0.45rem;
+  border: 1px solid rgba(36, 31, 26, 0.1);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #faf7f2 0%, #f3e9f0 55%, #eaf2fa 100%);
+  color: #1f1a18 !important;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  text-decoration: none !important;
+  border-bottom: none !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.65) inset;
+  vertical-align: middle;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.link-ig:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 6px 14px rgba(8, 20, 36, 0.12);
+}
+
+.link-ig__icon {
+  width: 0.95rem;
+  height: 0.95rem;
+  flex: 0 0 auto;
+}
+
+.scrap--card .link-ig {
+  margin-top: 0.35rem;
 }
 
 /* footer */
