@@ -12,6 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 NOTES = ROOT / "notes"
+TODOS = ROOT / "todos"
 STATIC = ROOT / "static"
 DIST = ROOT / "dist"
 
@@ -32,6 +33,15 @@ class Note:
     body_html: str
     text: str
     style: str
+
+
+@dataclass
+class Todo:
+    slug: str
+    date: str
+    title: str
+    status: str
+    body_html: str
 
 
 def parse_front_matter(text: str) -> tuple[dict, str]:
@@ -137,6 +147,17 @@ def md_to_html(body: str) -> str:
 
         if not stripped:
             i += 1
+            continue
+
+        if stripped.startswith("```"):
+            chunks: list[str] = []
+            i += 1
+            while i < len(lines) and not lines[i].rstrip().startswith("```"):
+                chunks.append(html.escape(lines[i].rstrip("\n")))
+                i += 1
+            if i < len(lines):
+                i += 1
+            out.append("<pre><code>" + "\n".join(chunks) + "</code></pre>")
             continue
 
         if _HR.fullmatch(stripped):
@@ -266,6 +287,30 @@ def load_notes() -> list[Note]:
     return notes
 
 
+def load_todos() -> list[Todo]:
+    todos: list[Todo] = []
+    if not TODOS.is_dir():
+        return todos
+    for path in sorted(TODOS.glob("*.md")):
+        meta, body = parse_front_matter(path.read_text(encoding="utf-8"))
+        title = meta.get("title") or path.stem
+        # strip a leading # title from body if it duplicates front matter
+        lines = body.splitlines()
+        if lines and lines[0].startswith("# "):
+            body = "\n".join(lines[1:]).lstrip("\n")
+        todos.append(
+            Todo(
+                slug=path.stem,
+                date=meta.get("date") or date.today().isoformat(),
+                title=title,
+                status=meta.get("status") or "todo",
+                body_html=md_to_html(body),
+            )
+        )
+    todos.sort(key=lambda t: (t.date, t.slug), reverse=True)
+    return todos
+
+
 def shell(title: str, body: str) -> str:
     return f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -301,6 +346,7 @@ def shell(title: str, body: str) -> str:
       <a href="{HOME_URL}">home</a>
     </div>
   </footer>
+  <script src="{BASE}/js/idea.js" defer></script>
 </body>
 </html>
 """
@@ -313,7 +359,31 @@ def render_card(n: Note) -> str:
 </article>"""
 
 
-def render_index(notes: list[Note]) -> str:
+def render_todo(t: Todo) -> str:
+    status = html.escape(t.status)
+    return f"""<li class="todo__item" data-status="{status}" data-slug="{html.escape(t.slug)}">
+  <button class="todo__head" type="button" aria-expanded="false">
+    <span class="todo__check" aria-hidden="true"></span>
+    <span class="todo__title">{html.escape(t.title)}</span>
+    <span class="todo__meta">{html.escape(t.date)} · {status}</span>
+  </button>
+  <div class="todo__panel">
+    <article class="todo-article">{t.body_html}</article>
+  </div>
+</li>"""
+
+
+def render_todos(todos: list[Todo]) -> str:
+    if not todos:
+        return ""
+    items = "".join(render_todo(t) for t in todos)
+    return f"""<section class="todo wrap" aria-label="todo">
+  <p class="todo__label">todo</p>
+  <ul class="todo__list">{items}</ul>
+</section>"""
+
+
+def render_index(notes: list[Note], todos: list[Todo]) -> str:
     cards = "".join(render_card(n) for n in notes)
     if not cards:
         cards = '<p class="feed__empty">还没有念头。</p>'
@@ -321,6 +391,7 @@ def render_index(notes: list[Note]) -> str:
     body = f"""
   <img class="desk__photo" src="/assets/idea-bg.jpeg" alt="" width="3600" height="2400" decoding="async" fetchpriority="high" />
   <main class="desk">
+    {render_todos(todos)}
     <div class="feed wrap">
       {cards}
     </div>
@@ -342,8 +413,9 @@ def main() -> None:
         shutil.copytree(STATIC, DIST, dirs_exist_ok=True)
 
     notes = load_notes()
-    write(DIST / "index.html", render_index(notes))
-    print(f"built {len(notes)} notes → {DIST}")
+    todos = load_todos()
+    write(DIST / "index.html", render_index(notes, todos))
+    print(f"built {len(notes)} notes + {len(todos)} todos → {DIST}")
 
 
 if __name__ == "__main__":

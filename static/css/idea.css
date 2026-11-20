@@ -134,6 +134,191 @@ img {
   color: #fff;
 }
 
+/* —— todo pad：蓝圆珠笔正文，红笔划重点 —— */
+.todo {
+  position: relative;
+  z-index: 10;
+  margin: 0 0 1.15rem;
+  padding: 0.85rem 0.95rem 0.95rem;
+  background-color: #f7f3e8;
+  background-image:
+    linear-gradient(#d7e4f0 1px, transparent 1px),
+    linear-gradient(
+      90deg,
+      transparent 1.55rem,
+      rgba(200, 55, 55, 0.42) 1.55rem,
+      rgba(200, 55, 55, 0.42) calc(1.55rem + 1.2px),
+      transparent calc(1.55rem + 1.2px)
+    );
+  background-size: 100% 1.55rem, 100% 100%;
+  background-position: 0 0.35rem, 0 0;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 10px 22px rgba(8, 20, 36, 0.28);
+  color: var(--ballpoint);
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  line-height: 1.55rem;
+}
+
+.todo__label {
+  margin: 0 0 0.55rem 1.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ballpoint) 55%, #8a4a4a);
+}
+
+.todo__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.todo__item + .todo__item {
+  margin-top: 0.15rem;
+  border-top: 1px dashed rgba(30, 90, 168, 0.18);
+  padding-top: 0.15rem;
+}
+
+.todo__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  width: 100%;
+  margin: 0;
+  padding: 0.2rem 0.15rem 0.2rem 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.todo__head:hover .todo__title {
+  text-decoration: underline;
+  text-decoration-color: rgba(30, 90, 168, 0.35);
+  text-underline-offset: 0.18em;
+}
+
+.todo__check {
+  flex: 0 0 auto;
+  width: 0.95rem;
+  height: 0.95rem;
+  margin-top: 0.28rem;
+  margin-left: 0.15rem;
+  border: 1.5px solid color-mix(in srgb, var(--ballpoint) 75%, #fff);
+  border-radius: 0.12rem;
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 0 1px rgba(30, 90, 168, 0.06);
+}
+
+.todo__item.is-open .todo__check,
+.todo__item[data-status="done"] .todo__check {
+  background:
+    linear-gradient(
+      135deg,
+      transparent 42%,
+      #c0392b 42%,
+      #c0392b 58%,
+      transparent 58%
+    ),
+    rgba(255, 248, 245, 0.9);
+  border-color: #c0392b;
+}
+
+.todo__title {
+  flex: 1 1 auto;
+  padding-top: 0.12rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.todo__meta {
+  flex: 0 0 auto;
+  margin-top: 0.22rem;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--ballpoint) 55%, #9a6a6a);
+  white-space: nowrap;
+}
+
+.todo__panel {
+  display: none;
+  margin: 0.15rem 0 0.45rem 1.85rem;
+  padding: 0.35rem 0.15rem 0.55rem 0;
+}
+
+.todo__item.is-open .todo__panel {
+  display: block;
+}
+
+.todo-article {
+  color: var(--ballpoint);
+}
+
+.todo-article p {
+  margin: 0;
+}
+
+.todo-article p + p {
+  margin-top: 0.55rem;
+}
+
+.todo-article h2,
+.todo-article h3 {
+  margin: 0.75rem 0 0.35rem;
+  font-size: 1em;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #b91c1c;
+}
+
+.todo-article strong {
+  color: #c0392b;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: rgba(192, 57, 43, 0.45);
+  text-underline-offset: 0.12em;
+  text-decoration-thickness: 1.5px;
+}
+
+.todo-article ul,
+.todo-article ol {
+  margin: 0.45rem 0;
+  padding-left: 1.1rem;
+}
+
+.todo-article li {
+  margin: 0.25rem 0;
+}
+
+.todo-article code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  padding: 0.05em 0.22em;
+  background: rgba(30, 90, 168, 0.08);
+  border-radius: 0.12rem;
+  color: #184a8c;
+}
+
+.todo-article pre {
+  margin: 0.55rem 0;
+  padding: 0.55rem 0.65rem;
+  overflow-x: auto;
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px dashed rgba(30, 90, 168, 0.28);
+  border-radius: 0.12rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: #1a4a8a;
+  white-space: pre-wrap;
+}
+
 /* dual-column feed (xhs-like) */
 .desk {
   padding: 1rem 0 2.5rem;
@@ -422,6 +607,18 @@ img {
 @media (max-width: 40rem) {
   .nav__brand-text {
     display: none;
+  }
+
+  .todo {
+    padding: 0.7rem 0.7rem 0.8rem;
+    font-size: 0.84rem;
+    line-height: 1.4rem;
+    background-size: 100% 1.4rem, 100% 100%;
+  }
+
+  .todo__label,
+  .todo__panel {
+    margin-left: 1.45rem;
   }
 
   .feed {
