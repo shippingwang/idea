@@ -134,10 +134,18 @@ img {
   color: #fff;
 }
 
+/* desk column: todo + feed share one centered width */
+.desk__col {
+  position: relative;
+  z-index: 10;
+}
+
 /* —— todo pad：蓝圆珠笔正文，红笔划重点 —— */
 .todo {
   position: relative;
   z-index: 10;
+  width: 100%;
+  box-sizing: border-box;
   margin: 0 0 1.15rem;
   padding: 0.85rem 0.95rem 0.95rem;
   background-color: #f7f3e8;

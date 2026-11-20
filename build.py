@@ -377,7 +377,7 @@ def render_todos(todos: list[Todo]) -> str:
     if not todos:
         return ""
     items = "".join(render_todo(t) for t in todos)
-    return f"""<section class="todo wrap" aria-label="todo">
+    return f"""<section class="todo" aria-label="todo">
   <p class="todo__label">todo</p>
   <ul class="todo__list">{items}</ul>
 </section>"""
@@ -388,12 +388,15 @@ def render_index(notes: list[Note], todos: list[Todo]) -> str:
     if not cards:
         cards = '<p class="feed__empty">还没有念头。</p>'
 
+    todos_html = render_todos(todos)
     body = f"""
   <img class="desk__photo" src="/assets/idea-bg.jpeg" alt="" width="3600" height="2400" decoding="async" fetchpriority="high" />
   <main class="desk">
-    {render_todos(todos)}
-    <div class="feed wrap">
-      {cards}
+    <div class="desk__col wrap">
+      {todos_html}
+      <div class="feed">
+        {cards}
+      </div>
     </div>
   </main>
 """
